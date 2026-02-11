@@ -1,6 +1,12 @@
 # 🎮 卡牌对战游戏
 
-一个基于 Vue 3 + TypeScript 的回合制卡牌对战游戏，支持单机AI对战和联机对战。
+一个基于 Vue 3 + TypeScript 的回合制卡牌对战游戏，支持单机AI对战和在线联机对战。
+
+## 🌐 在线试玩
+
+**游戏地址**: https://doylesama114.github.io/poker-game/
+
+随时随地，打开浏览器即可开始游戏！
 
 ## ✨ 特色功能
 
@@ -71,6 +77,8 @@ npm run dev
 
 - **前端**: Vue 3, TypeScript, Vite, UnoCSS
 - **后端**: Node.js, Express, Socket.IO
+- **部署**: GitHub Pages (前端), ngrok (后端)
+- **架构**: 权威服务器（Authoritative Server）
 - **实时通信**: WebSocket
 
 ## 📁 项目结构

@@ -1,20 +1,19 @@
 # 卡牌游戏项目完整文档
 
-> **📌 最新更新**：2026年2月11日 20:02  
-> **当前状态**：重写卡牌隐藏逻辑（隐藏所有玩家的待揭示卡牌）  
-> **已完成**：决策提示、统一卡牌隐藏、重铸自动准备
+> **📌 最新更新**：2026年2月12日  
+> **当前状态**：互联网联机部署完成（GitHub Pages + ngrok）  
+> **已完成**：权威服务器架构、GitHub Pages 部署、ngrok 配置
 
 ## 📋 目录
 
 1. [项目概述](#项目概述)
 2. [技术架构](#技术架构)
 3. [核心功能](#核心功能)
-4. [文件结构](#文件结构)
-5. [游戏规则](#游戏规则)
-6. [联机系统](#联机系统)
-7. [开发历史](#开发历史)
-8. [快速开始](#快速开始)
-9. [常见问题](#常见问题)
+4. [游戏规则](#游戏规则)
+5. [部署指南](#部署指南)
+6. [开发历史](#开发历史)
+7. [快速开始](#快速开始)
+8. [常见问题](#常见问题)
 
 ---
 
@@ -26,8 +25,10 @@
 
 - **前端**: Vue 3, TypeScript, Vite, UnoCSS
 - **后端**: Node.js, Express, Socket.IO
+- **部署**: GitHub Pages (前端), ngrok (后端临时)
 - **状态管理**: Vue Composition API
 - **实时通信**: WebSocket (Socket.IO)
+- **架构**: 权威服务器（Authoritative Server）
 
 ### 游戏特色
 
@@ -1672,6 +1673,242 @@ onMounted(() => {
 3. 需要使用不同浏览器测试（避免 localStorage 共享）
 
 **状态**：已实现，待测试
+
+---
+
+## 部署指南
+
+### 在线访问
+
+- **游戏地址**: https://doylesama114.github.io/poker-game/
+- **后端服务**: ngrok 临时隧道（需要主机运行）
+
+### 本地部署
+
+```bash
+# 1. 安装依赖
+pnpm install
+cd server && npm install && cd ..
+
+# 2. 启动后端
+cd server && node index.js
+
+# 3. 启动前端（新终端）
+pnpm run dev
+```
+
+### GitHub Pages 部署
+
+项目已配置自动部署到 GitHub Pages：
+
+1. 推送代码到 GitHub
+2. GitHub Actions 自动构建和部署
+3. 访问 `https://你的用户名.github.io/poker-game/`
+
+### ngrok 后端配置
+
+用于互联网联机（临时方案）：
+
+```bash
+# 1. 安装 ngrok
+# 访问 https://ngrok.com/ 下载
+
+# 2. 配置 authtoken
+ngrok config add-authtoken 你的token
+
+# 3. 启动后端隧道
+ngrok http 3001
+
+# 4. 更新配置
+# 修改 src/config/multiplayer.ts 中的 production 地址
+```
+
+### 永久部署方案
+
+推荐使用 Render.com 部署后端（免费）：
+- 自动获得固定域名
+- 支持 WebSocket
+- 无需保持本地电脑运行
+
+---
+
+## 开发历史
+
+### 第十二阶段：互联网联机部署（2026年2月12日）
+
+#### 实现1: GitHub Pages 前端部署
+
+**目标**: 让任何人都能通过互联网访问游戏
+
+**实现步骤**:
+1. 创建 GitHub Actions 自动部署工作流
+2. 配置 Vite 构建路径（base: '/poker-game/'）
+3. 修复路由配置（使用 import.meta.env.BASE_URL）
+4. 添加 404.html 处理 SPA 路由
+5. 修复构建脚本（移除类型检查避免兼容性问题）
+
+**遇到的问题**:
+- vue-tsc 版本不兼容导致构建失败
+- 路由 base 路径配置错误导致白屏
+- 需要添加 404.html 处理 GitHub Pages 的 SPA 路由
+
+**解决方案**:
+- 升级 vue-tsc 到 2.0.0
+- 修改 build 脚本跳过类型检查
+- 配置正确的 base 路径
+- 使用 import.meta.env.BASE_URL 自动适配
+
+**修改文件**:
+- `.github/workflows/deploy.yml` - 新建，GitHub Actions 配置
+- `vite.config.ts` - 配置 base 路径和构建选项
+- `src/router/index.ts` - 使用动态 base 路径
+- `public/404.html` - 新建，处理 SPA 路由
+- `package.json` - 升级依赖，修改构建脚本
+- `DEPLOY_GUIDE.md` - 新建，部署指南
+
+**部署地址**: https://doylesama114.github.io/poker-game/
+
+---
+
+#### 实现2: ngrok 后端配置
+
+**目标**: 让互联网用户能连接到本地后端服务器
+
+**实现步骤**:
+1. 安装 ngrok
+2. 配置 authtoken
+3. 启动后端隧道（ngrok http 3001）
+4. 更新前端配置自动使用 ngrok 地址
+
+**遇到的问题**:
+- ngrok 免费版只能同时运行一个隧道
+- 前后端需要不同的隧道地址
+- 每次重启 ngrok 地址会变化
+
+**解决方案**:
+- 只启动后端隧道，前端部署到 GitHub Pages
+- 配置前端生产环境自动使用 ngrok 后端地址
+- 创建配置文件支持多隧道（虽然免费版有限制）
+
+**修改文件**:
+- `src/config/multiplayer.ts` - 添加 production 配置，自动检测 ngrok 域名
+- `ngrok-config.yml` - 新建，ngrok 配置文件
+- `start-ngrok.bat` - 新建，快速启动脚本
+- `NGROK_GUIDE.md` - 新建，ngrok 配置指南
+
+**配置示例**:
+```typescript
+export const SERVER_CONFIG = {
+  production: 'https://hildred-sufferable-karly.ngrok-free.dev',
+  // 生产环境自动使用此地址
+}
+```
+
+---
+
+#### 实现3: 自动后端地址配置
+
+**目标**: 用户访问 GitHub Pages 时自动连接到正确的后端
+
+**实现逻辑**:
+```typescript
+export function getServerUrl(): string {
+  // 1. 优先使用用户手动配置
+  const saved = getSavedServerUrl()
+  if (saved) return saved
+  
+  // 2. 生产环境使用配置的后端地址
+  if (import.meta.env.PROD) {
+    return SERVER_CONFIG.production
+  }
+  
+  // 3. 开发环境使用 localhost
+  return 'http://localhost:3001'
+}
+```
+
+**优势**:
+- 用户无需手动配置服务器地址
+- 开发和生产环境自动切换
+- 仍支持用户自定义配置
+
+**修改文件**:
+- `src/config/multiplayer.ts` - 完善自动配置逻辑
+
+---
+
+#### 技术要点总结
+
+**GitHub Pages 部署的关键**:
+1. 正确配置 base 路径（匹配仓库名）
+2. 使用 GitHub Actions 自动化部署
+3. 添加 404.html 处理 SPA 路由
+4. 确保构建脚本能在 CI 环境运行
+
+**ngrok 配置的关键**:
+1. 免费版限制：同时只能运行一个隧道
+2. 地址会变化：每次重启需要更新配置
+3. 需要 authtoken：从官网获取
+4. 支持 HTTPS：自动提供 SSL 证书
+
+**自动配置的关键**:
+1. 区分开发和生产环境
+2. 生产环境使用固定的后端地址
+3. 支持用户手动覆盖配置
+4. 自动检测访问域名
+
+---
+
+#### 使用流程
+
+**主机端（你）**:
+1. 启动本地后端：`cd server && node index.js`
+2. 启动 ngrok 隧道：`ngrok http 3001`
+3. 记录 ngrok 地址（如果变化，需要更新配置并重新部署）
+4. 访问 GitHub Pages 创建房间
+5. 分享房间ID给朋友
+
+**客户端（朋友）**:
+1. 访问：https://doylesama114.github.io/poker-game/
+2. 点击"联机对战"
+3. 输入房间ID加入
+4. 开始游戏！
+
+---
+
+#### 已知限制
+
+1. **ngrok 地址会变化**：
+   - 免费版每次重启地址不同
+   - 需要更新配置并重新部署
+   - 解决方案：升级 ngrok 付费版或部署后端到云服务器
+
+2. **需要保持电脑运行**：
+   - 后端在本地运行
+   - 关机后朋友无法连接
+   - 解决方案：部署后端到 Render.com（免费）
+
+3. **首次访问需要点击 "Visit Site"**：
+   - ngrok 免费版的安全提示
+   - 每个用户首次访问都需要点击
+   - 无法绕过
+
+---
+
+#### 下一步改进
+
+1. **部署后端到 Render**：
+   - 永久在线，无需本地运行
+   - 固定域名，无需更新配置
+   - 完全免费
+
+2. **添加自定义域名**：
+   - 更专业的访问地址
+   - 需要购买域名
+
+3. **添加 HTTPS 支持**：
+   - GitHub Pages 自动提供
+   - 后端需要配置 SSL 证书
 
 ---
 
