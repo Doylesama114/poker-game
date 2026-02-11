@@ -6,9 +6,8 @@ import path from 'path'
 
 export default defineConfig({
     // GitHub Pages 部署时需要设置正确的 base
-    // 如果仓库名是 poker-game，则 base 应该是 '/poker-game/'
-    // 本地开发时使用 './'
-    base: process.env.NODE_ENV === 'production' ? './' : './',
+    // 仓库名是 poker-game，所以 base 应该是 '/poker-game/'
+    base: process.env.NODE_ENV === 'production' ? '/poker-game/' : '/',
     plugins: [
         vue(),
         UnoCSS(),

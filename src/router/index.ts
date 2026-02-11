@@ -1,5 +1,5 @@
 const router = createRouter({
-    history: createWebHistory('/poker-game-template/'),
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
             path: '/',
