@@ -26,10 +26,10 @@ export function getServerUrl(): string {
     return saved
   }
   
-  // 检查是否在生产环境
+  // 检查是否在生产环境（GitHub Pages）
   if (import.meta.env.PROD) {
-    // 生产环境：使用环境变量或默认值
-    return import.meta.env.VITE_SERVER_URL || 'http://localhost:3001'
+    // 生产环境默认使用配置的后端地址
+    return SERVER_CONFIG.production
   }
   
   // 开发环境：根据当前主机自动选择
@@ -68,7 +68,10 @@ export const SERVER_CONFIG = {
   // ngrok 格式：https://abc123.ngrok-free.app
   // Sakura FRP 格式1（HTTP隧道）：http://你的后端域名.natfrp.cloud
   // Sakura FRP 格式2（TCP隧道）：http://节点域名:分配的端口
-  frp: 'http://localhost:3001', // 使用本地后端（前端通过 ngrok 访问）
+  frp: 'https://hildred-sufferable-karly.ngrok-free.dev',
+  
+  // 生产环境（GitHub Pages）默认后端地址
+  production: 'https://hildred-sufferable-karly.ngrok-free.dev',
   
   // 互联网（需要部署后填写）
   internet: 'https://your-server.com:3001'
